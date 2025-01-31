@@ -33,6 +33,21 @@ class Client {
       return ErrorResult(message: resData["message"]);
     }
   }
+
+  Future<ClientResult<String>> animal(String token) async {
+    final body = json.encode({"token": token});
+
+    var res = await http.post(Uri.parse("$apiUrl/animal"),
+        headers: {"Content-Type": "application/json"}, body: body);
+
+    var resData = json.decode(res.body);
+
+    if (resData["ok"]) {
+      return SuccessResult(data: resData["animal"]);
+    } else {
+      return ErrorResult(message: resData["message"]);
+    }
+  }
 }
 
 sealed class ClientResult<Data> {
