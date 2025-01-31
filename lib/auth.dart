@@ -11,14 +11,21 @@ class Auth extends ChangeNotifier {
     var result = await Client().login(username, password);
 
     status = switch (result) {
-      SuccessResult<String>() => LoggedIn(),
-      ErrorResult<String>() => Error(),
+      SuccessResult<String>(data: final token) => LoggedIn(token: token),
+      ErrorResult<String>(message: final message) => Error(message: message),
     };
+    notifyListeners();
+  }
+
+  void logout() {
+    status = LoggedOut();
     notifyListeners();
   }
 }
 
-sealed class AuthStatus {}
+sealed class AuthStatus {
+  bool shouldShow() => false;
+}
 
 final class LoggedOut extends AuthStatus {}
 
@@ -27,9 +34,21 @@ final class LoggedIn extends AuthStatus {
   LoggedIn({required this.token});
 }
 
-final class Loading extends AuthStatus {}
+final class Loading extends AuthStatus {
+  @override
+  bool shouldShow() => true;
+
+  @override
+  String toString() => "loading...";
+}
 
 final class Error extends AuthStatus {
   final String message;
   Error({required this.message});
+
+  @override
+  bool shouldShow() => true;
+
+  @override
+  String toString() => message;
 }
